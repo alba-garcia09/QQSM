@@ -1,0 +1,144 @@
+#root {
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  display: flex;
+  flex-direction:column;
+
+  /* display: flex;
+  flex-direction: column; */
+}
+
+#myHeader {
+
+  height: 15dvh;
+  /* height: calculate(15dvh%); */
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+}
+
+
+#myMain {
+  height: 85dvh;
+  width: 100%;
+  /* background-image: url('https://marceloandpartners.com/marcelo-and-warner-bros-atresmedia/'); */
+  background-color:  #022677;
+
+  display: flex;
+  flex-direction:column;
+  align-items: center;
+  justify-content: space-around;
+}
+
+#myQuestionContainer {
+  display: flex;
+  flex-direction:column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+
+
+#myLevelContainer {
+  height: 15dvh;
+  width: 80%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+}
+
+.myQuestionBox {
+  background-color: #E6E6E6;
+  border: 2px solid white;
+  margin: 10px;
+  padding: 20px;
+  border-radius: 30px;
+}
+
+.myAnswerBox {
+  background-color: #1BBBF8;
+  border: 2px solid #022677;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 20px;
+}
+
+.myTryingrBox {
+  background-color: #FFD074;
+  border: 2px solid white;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 30px;
+}
+
+
+.myWrongBox {
+  background-color: #FF5454;
+  border: 2px solid #022677;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 20px;
+}
+
+.myGuessedBox {
+  background-color: #C1FF72;
+  border: 2px solid #022677;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 20px;
+}
+
+/* para hacer el sombreado */
+.shadow-inner {
+  /* box-shadow: inset 0 0 20px 5px rgba(255, 255, 255, 0.25); Sombras interiores con desenfoque */
+  box-shadow: 0 0 10px 5px rgba(229, 239, 203, 0.25); /* resplandor */
+}
+
+.wildcardButon {
+  background-color: #1BBBF8;
+  margin: 10px;
+  padding: 10px;
+}
+
+
+.nextLevelBox {
+  background-color: #F4E9AD;
+  border-radius: 30px;
+
+
+  height: calc((100dvw / 50));
+  width: calc((100dvw / 50));
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  justify-content: space-around;
+  font-size: calc((100dvw / 70));
+}
+
+.levelBox {
+  background-color:#855BAD;
+  border-radius: 30px;
+
+
+  height: calc((100dvw / 50));
+  width: calc((100dvw / 50));
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  justify-content: space-around;
+  font-size: calc((100dvw / 70));
+}
+
+
+
+
+/* .button {
+  background-color: white;
+  border: 1px solid black;
+  margin: 10px;
+  padding: 10px;
+}
+
+
