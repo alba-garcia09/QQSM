@@ -1,9 +1,4 @@
-// ---------- Eventos ----------
-
-// https://developer.mozilla.org/es/docs/Web/Events
-
-const myButton = document.getElementById('myButtonId');
-function buildPage(numberOfQuestions) {
+function buildPage({ numberOfQuestions, }) {
   const root = document.getElementById('root');
 
   const myHeader = document.createElement('header');
@@ -48,23 +43,22 @@ function buildPage(numberOfQuestions) {
       const myLevel = document.createElement('div');
       myLevel.setAttribute('class', 'levelBox');
       myLevel.innerText = indexOfNumberOfQuestion + 1;
-      myLevel.setAttribute('id', 'levelBox' + indexOfNumberOfQuestion);
+      myLevel.setAttribute('id', 'levelBox' + (indexOfNumberOfQuestion + 1));
       myLevelContainer.appendChild(myLevel);
     }
   }
   createNumberBoard(numberOfQuestions);
+
+  const myFirstLevel = document.getElementById('levelBox1');
+  myFirstLevel.setAttribute('class', 'nextLevelBox');
 }
 
-function getRandomNumber(min, max) {
+function getRandomNumber({ min, max, }) {
   const randomNumber = Math.floor(Math.random() * (max - min));
   return randomNumber;
 }
 
-// function progress(min, max) {
-//   const randomNumber = Math.floor(Math.random() * (max - min));
-//   return randomNumber;
-// }
-
+//  hacer un array que me guarde todas las preguntas para que no se repitan
 async function showQuestion(div1, div2, questionData) {
   const myQuestionBox = document.createElement('div');
   myQuestionBox.id = 'myQuestionBox';
@@ -72,119 +66,162 @@ async function showQuestion(div1, div2, questionData) {
   myQuestionBox.innerText = questionData.description;
   div1.appendChild(myQuestionBox);
 
-  const answerOptions = ['a', 'b', 'c', 'd',];
-  // const answerOptions = questionData.answers[keys]
-  // console.log(answerOptions);
+  const answerOptions = Object.keys(questionData.answers);
 
-  for (let indexOfAnswers = 0; indexOfAnswers < answerOptions.length; indexOfAnswers++) {
+  for (let i = 0; i < answerOptions.length; i++) {
+    const optionKey = answerOptions[i];
     const myAnswer = document.createElement('div');
-    myAnswer.setAttribute('id', answerOptions[indexOfAnswers]);
+    myAnswer.setAttribute('id', optionKey);
     myAnswer.classList.add('myAnswerBox', 'shadow-inner');
-    myAnswer.innerText = `${answerOptions[indexOfAnswers]}) ${questionData.answers[answerOptions[indexOfAnswers]]}`;
+    myAnswer.innerText = `${optionKey}) ${questionData.answers[optionKey]}`;
 
     div2.appendChild(myAnswer);
   }
 }
 
-async function testingAnswer(item) {
-  item.addEventListener('click', function (event) {
-    const dadElement = item.parentElement;
-    console.log(dadElement);
-    const myChildren = dadElement.children;
+function getIndexLevel(item) {
+  const myLevels = item.children;
+  for (let i = 0; i < myLevels.length; i++) {
+    if (myLevels[i].classList.contains('nextLevelBox')) {
+      const myCurrentLevel=parseInt(myLevels[i].innerText);
+      return myCurrentLevel;
+    }
+  }
+}
 
+function giveLevel(item) {
+  const numberLevel = getIndexLevel(item);
+
+  switch (true) {
+    case numberLevel <= 5:
+      return 'easy';
+
+    case numberLevel <= 10:
+      return 'medium';
+
+    case numberLevel <= 15:
+      return 'hard';
+  }
+}
+
+//  La función que pasa de nivel cambia de color y elimina a los hijos de question y de answer
+async function nextLevel({ circle, questionIds,}) {
+  const myQuestionContainer = document.getElementById('myQuestionContainer');
+  const myAnswerContainer = document.getElementById('myAnswerContainer');
+  const numberLevel = getIndexLevel(circle);
+
+  myQuestionContainer.innerHTML = '';
+  myAnswerContainer.innerHTML = '';
+
+  const newLevel = document.getElementById(`levelBox${numberLevel + 1}`);
+  const myLevels = document.getElementById('myLevelContainer').children;
+  newLevel.setAttribute('class', 'nextLevelBox');
+
+  for (let i = (numberLevel-1) ; i >= 0; i--) {
+    myLevels[i].classList.add('class', 'guessedLevelBox');
+    myLevels[i].classList.remove('nextLevelBox');
+  }
+
+  getQuestion({ questionIds, });
+}
+
+// Añadir lo  de que muestre la correcta y que no se puedan clicarmás una vez clicados los naranjas, y que no se puedan clicar ya mas, además que vuelva a enseñar las preguntas
+async function toGuess({ item, questionData, circle, questionIds,}) {
+  const correctAnswer = await questionData.correctAnswer;
+  console.log(correctAnswer);
+  const dadElement = item.parentElement;
+  const myChildren = [...dadElement.children,];
+
+  item.addEventListener('click', function (event) {
     for (let i = 0; i < myChildren.length; i++) {
       const child = myChildren[i];
-      if (child.classList.contains('myTryingrBox')) {
-        child.classList.add('myAnswerBox');
-        child.classList.remove('myTryingrBox');
+      if (child.classList.contains('myGuessedBox') || child.classList.contains('myWrongBox')) {
+        return;
       }
     }
-    item.classList.add('myTryingrBox');
+
+    if (item.classList.contains('myAnswerBox')) {
+      for (let i = 0; i < myChildren.length; i++) {
+        const child = myChildren[i];
+        if (child.classList.contains('myTryingrBox')) {
+          child.classList.add('myAnswerBox');
+          child.classList.remove('myTryingrBox');
+        }
+      }
+      item.classList.add('myTryingrBox');
+      item.classList.remove('myAnswerBox');
+
+    } else if (item.classList.contains('myTryingrBox') && item.id === correctAnswer) {
+      item.classList.add('myGuessedBox');
+      item.classList.remove('myTryingrBox');
+      setTimeout(() => nextLevel({ circle, questionIds,}), 3000);
+
+    } else {
+      item.classList.add('myWrongBox');
+      item.classList.remove('myTryingrBox');
+
+      const myCorrectBox = document.getElementById(correctAnswer);
+      myCorrectBox.classList.add('myGuessedBox');
+      myCorrectBox.classList.remove('myTryingrBox');
+
+      const numberLevel= getIndexLevel(circle);
+      const myLevelBox= document.getElementById(`levelBox${numberLevel}`);
+
+      myLevelBox.classList.add('class', 'wrongLevelBox');
+      myLevelBox.classList.remove('nextLevelBox');
+
+      // al final es lo mismo pero menos lineas de la manera que dejo
+      // const findIndexCallback = (child) => child.id === correctAnswer;
+      // const indexOfCorrect = myChildren.findIndex(findIndexCallback);
+      // myChildren[indexOfCorrect].classList.add('myGuessedBox');
+      // myChildren[indexOfCorrect].classList.remove('myTryingrBox');
+    }
   });
+  return;
 }
 
-async function toGuess(item) {
-  item.addEventListener('click', function (event) {
-    const dadElement = item.parentElement;
-    console.log(dadElement);
-    const myChildren = dadElement.children;
 
+// async function name(params) {
 
-  });
-}
+// }
 
-//Aqui vamos mostrando todo
-async function getQuestion(language1, language2, language3, level1, level2, level3) {
+//  Aqui vamos mostrando todo
+async function getQuestion({ questionIds, }) {
+  console.log('questionIds', questionIds);
+  const languages = ['html', 'css', 'javascript',];
+
   // Obtener un número aleatorio entre 0 y 2 para seleccionar un idioma aleatorio
-  const randomIndexForLanguage = getRandomNumber(0, 3);
-  const languages = [language1, language2, language3,];
+  const randomIndexForLanguage = getRandomNumber({ min: 0, max: 3, });
   const category = languages[randomIndexForLanguage];
 
-  const randomIndexForLevel = getRandomNumber(0, 3);
-  const levels = [level1, level2, level3,];
-  const level = levels[randomIndexForLevel];
-
+  const myLevelContainer = document.getElementById('myLevelContainer');
+  const level = giveLevel(myLevelContainer);
   const url = `https://quiz-api-ofkh.onrender.com/questions/random?level=${level}&category=${category}`;
   const responseAsPromise = await fetch(url);
   const myInfo = await responseAsPromise.json();
 
-  const myQuestionContainer = document.getElementById('myQuestionContainer');
-  const myAnswerContainer = document.getElementById('myAnswerContainer');
+  if (questionIds.includes(myInfo._id)) {
+    console.log('se ha repetido una pregunta con el id: ', myInfo._id);
+    getQuestion({ questionIds, });
+  } else {
+    questionIds.push(myInfo._id);
+    const myQuestionContainer = document.getElementById('myQuestionContainer');
+    const myAnswerContainer = document.getElementById('myAnswerContainer');
+    await showQuestion(myQuestionContainer, myAnswerContainer, myInfo);
 
-  await showQuestion(myQuestionContainer, myAnswerContainer, myInfo);
+    const myAnswers = myAnswerContainer.children;
 
-  const myAnswers = myAnswerContainer.children;
-  for (let i = 0; i < myAnswers.length; i++) {
-    await testingAnswer(myAnswers[i]);
+    for (let i = 0; i < myAnswers.length; i++) {
+      toGuess({ item: myAnswers[i], questionData: myInfo, circle: myLevelContainer, questionIds,});
+    }
   }
-
-
 }
 
 async function runPage() {
-  buildPage(15);
-  await getQuestion('html', 'css', 'javascript', 'easy', 'medium', 'hard');
+  buildPage({ numberOfQuestions: 15, });
+  const questionIds = [];
+  getQuestion({ questionIds, });
+
 }
 
 runPage();
-
-
-
-
-// function createNumbers(totalNumbers) {
-//   //Me crea el tablero
-//   const myFooter = document.getElementById('myFooter');
-//   for (let i = 0; i < totalNumbers; i++) {
-//     const theNumbers = document.createElement('div');
-//     theNumbers.setAttribute('id', 'theNumbers' + i);
-//     theNumbers.setAttribute('class', 'theNumbers');
-//     myFooter.appendChild(theNumbers);
-//     theNumbers.innerText = i;
-
-
-//     //Asocia cada numero del tablero al evento
-//     theNumbers.addEventListener('click', function (event) {
-//       const oneTriesElements = document.getElementsByClassName('oneTry');
-//       const oneTriesElementsAsArray = [...oneTriesElements,];
-//       const emptyLine = getEmptyLine(oneTriesElementsAsArray);
-//       creatingNumber(emptyLine, i);
-//     });
-//   }
-// }
-
-
-// async function showQuestions() {
-
-//     function createNumberBoard(numberOfQuestions) {
-//     const mySecondContainer = document.getElementById('mySecondContainer');
-
-//     for (let indexOfNumberOfQuestion = 0; indexOfNumberOfQuestion <= numberOfQuestions; indexOfNumberOfQuestion++) {
-//       const myLevel = document.createElement('div');
-//       myLevel.setAttribute('class', 'levelBox');
-//       myLevel.innerText = indexOfNumberOfQuestion;
-//       myLevel.setAttribute('id', 'levelBox' + indexOfNumberOfQuestion);
-//       mySecondContainer.appendChild(myLevel);
-//     }
-//   }
-//   createNumberBoard(numberOfQuestions);
-// }

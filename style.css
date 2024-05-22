@@ -3,6 +3,7 @@
   display: flex;
   flex-direction:column;
 
+
   /* display: flex;
   flex-direction: column; */
 }
@@ -16,30 +17,34 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: white;
+  background-color: #022677;
 }
 
 
 #myMain {
   height: 85dvh;
   width: 100%;
-  /* background-image: url('https://marceloandpartners.com/marcelo-and-warner-bros-atresmedia/'); */
-  background-color:  #022677;
+  /* background-image: url('fondo2.jpg'); */
+  background-image: url('fondo.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  margin: 0;
 
   display: flex;
   flex-direction:column;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-evenly;
 }
 
 #myQuestionContainer {
   display: flex;
   flex-direction:column;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
+
+  padding-top: 75px;
 }
-
-
 
 #myLevelContainer {
   height: 15dvh;
@@ -102,6 +107,34 @@
   padding: 10px;
 }
 
+.guessedLevelBox {
+  background-color:  #C1FF72;
+  border-radius: 30px;
+
+
+  height: calc((100dvw / 50));
+  width: calc((100dvw / 50));
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  justify-content: space-around;
+  font-size: calc((100dvw / 70));
+}
+
+.wrongLevelBox {
+  background-color:  #FF5454;
+  border-radius: 30px;
+
+
+  height: calc((100dvw / 50));
+  width: calc((100dvw / 50));
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  justify-content: space-around;
+  font-size: calc((100dvw / 70));
+}
+
 
 .nextLevelBox {
   background-color: #F4E9AD;
@@ -118,7 +151,7 @@
 }
 
 .levelBox {
-  background-color:#855BAD;
+  background-color:white;
   border-radius: 30px;
 
 
