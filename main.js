@@ -1,24 +1,31 @@
-function buildPage({ numberOfQuestions, }) {
+function buildPage({ numberOfQuestions, wildcards, }) { // id: '50', text: '50%', class: 'button50Ok', 'shadow-out'},
   const root = document.getElementById('root');
 
   const myHeader = document.createElement('header');
   myHeader.id = 'myHeader';
   root.appendChild(myHeader);
 
-  const button50 = document.createElement('div');
-  button50.id = 'button50';
-  button50.classList.add('shadow-out', 'button50Ok');
-  myHeader.appendChild(button50);
+  const myTitle = document.createElement('div');
+  myTitle.id = 'myTitle';
+  myTitle.innerText = 'Quien quiere ser millonario_';
+  myHeader.appendChild(myTitle);
 
-  const buttonChange = document.createElement('div');
-  buttonChange.id = 'buttonChange';
-  buttonChange.classList.add('shadow-out', 'buttonChangeOk');
-  myHeader.appendChild(buttonChange);
+  const wildcardsContainer = document.createElement('div');
+  wildcardsContainer.id = 'wildcardsContainer';
+  myHeader.appendChild(wildcardsContainer);
 
-  const buttonCall = document.createElement('div');
-  buttonCall.id = 'buttonCall';
-  buttonCall.classList.add('shadow-out', 'wildcardButon');
-  myHeader.appendChild(buttonCall);
+  const myWildcards = { wildcards, };
+
+  for (let i = 0; i < myWildcards.wildcards.length; i++) {
+    const wilcard = myWildcards.wildcards[i];
+    const wildcardButton = document.createElement('div');
+    wildcardButton.id = `button${wilcard.id}`;
+    wildcardButton.innerText = wilcard.text;
+
+    wildcardButton.classList.add(wilcard.class[0]);
+    wildcardButton.classList.add(wilcard.class[1]);
+    wildcardsContainer.appendChild(wildcardButton);
+  }
 
   const myMain = document.createElement('main');
   myMain.id = 'myMain';
@@ -201,7 +208,6 @@ function lastWindow({ circle, item, }) {
 }
 
 function changeWildcard({ questionIds, }) {
-  console.log('he entrado en la funcion de change');
   const myQuestionContainer = document.getElementById('myQuestionContainer');
   const myAnswerContainer = document.getElementById('myAnswerContainer');
 
@@ -224,28 +230,25 @@ function changeWildcard({ questionIds, }) {
   buttonChange.parentElement.replaceChild(clonedButtonChange, buttonChange);
 }
 
-async function fiftyWildcard({questionData}) {
+async function fiftyWildcard({ questionData, }) {
   const correctAnswer = await questionData.correctAnswer;
-  console.log('my correctAnswer', correctAnswer);
-
   const myAnswerContainer = document.getElementById('myAnswerContainer').children;
 
   function myClickCallback(event) {
     const button50 = document.getElementById('button50');
+
     if (button50.classList.contains('button50Done')) {
       alert('Has usado el comodín ya');
       return;
     }
 
     const removedAnswersArray = [];
-    console.log(removedAnswersArray);
     while (removedAnswersArray.length < 2) {
       const indexForRemove = getRandomNumber({ min: 0, max: 4, });
-      console.log('indexinrandomnumber', indexForRemove);
       const myAnswer = myAnswerContainer[indexForRemove];
-      console.log('myAnswer', myAnswer);
+      const response = removedAnswersArray.some(item => item.id === myAnswer.id);
 
-      if (correctAnswer !== myAnswer.id) {
+      if (correctAnswer !== myAnswer.id && !response) {
         button50.classList.add('button50Done');
         button50.classList.remove('button50Ok');
         removedAnswersArray.push(myAnswer);
@@ -256,11 +259,21 @@ async function fiftyWildcard({questionData}) {
       }
     }
   }
-
   const clonedButton50 = button50.cloneNode(true);
   clonedButton50.addEventListener('click', myClickCallback);
   button50.parentElement.replaceChild(clonedButton50, button50);
 }
+
+function callWildcard() {
+  const buttonCall = document.getElementById('buttonCall');
+  function myClickCallback(event) {
+    buttonCall.classList.add('buttonCallDone');
+    alert('No he hecho nada con este boyón al final');
+    return;
+  }
+  buttonCall.addEventListener('click', myClickCallback);
+}
+
 
 // Añadir lo  de que muestre la correcta y que no se puedan clicarmás una vez clicados los naranjas, y que no se puedan clicar ya mas, además que vuelva a enseñar las preguntas
 async function toGuess({ item, questionData, circle, questionIds, }) {
@@ -350,13 +363,20 @@ async function getQuestion({ questionIds, }) {
     }
   }
 
-  // wilcards here
+  // wilcards por aqui
   changeWildcard({ questionIds, });
-  fiftyWildcard({questionData: myInfo, });
+  fiftyWildcard({ questionData: myInfo, });
+  callWildcard();
 }
 
 async function runPage() {
-  buildPage({ numberOfQuestions: 15, });
+  buildPage({
+    numberOfQuestions: 15, wildcards: [
+      { id: '50', text: '50%', class: ['button50Ok', 'shadow-out',], },
+      { id: 'Change', text: '', class: ['buttonChangeOk', 'shadow-out',], },
+      { id: 'Call', text: '', class: ['buttonCallOk', 'shadow-out',], },
+    ],
+  });
   const questionIds = [];
   getQuestion({ questionIds, });
 
